@@ -44,12 +44,8 @@ echo >> ALUMNOS.DAT
 
 function menu{
 	echo Ingrese una opción: #PONGAMOS ALGUN SETAF Y/O SETAB
-	echo -e "1 - Agregar estudiante\n"
-	echo -e "2 - Buscar estudiante\n"
-	echo -e "3 - Borrar estudiante\n"
-	echo -e "4 - Modificar estudiante\n"
-	echo -e "5 - Informacion relevante del estudiante\n"
-	echo -e "6 - Salir\n"
+	echo Unica opcion por ahora :)
+	agregarAlumno()
 }
 
 
