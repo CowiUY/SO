@@ -1,7 +1,3 @@
-#TRABAJANDO EN LOS SED 320
-#Quiero hacer que se cambie una línea
-
-letrasGrupos=(a b c d e f g h i j k l m n o p q r s t u v w x y z)
 pepito=8
 crearGrupo () {
 clear
@@ -9,8 +5,8 @@ clear
 tput setaf 1
 
 echo Creando Grupo...
-
-echo Ingrese nombre de grupo:
+#echo $pepito
+echo "Ingrese nombre de grupo (En una sola palabra):"
 tput sgr 0
 read nomGrupo
 tput setaf 1
@@ -42,11 +38,15 @@ echo Ingrese nombre del adscripto
 tput sgr 0
 read adscripto
 
+echo Ingrese año del curso
+tput sgr 0
+read anioGrupo
+
 
 if [ -f GRUPOS.DAT ]
 then
 
-if grep -w $nomGrupo GRUPOS.DAT
+if grep -wq $nomGrupo GRUPOS.DAT
 then
 clear
 echo El grupo ingresado ya existe
@@ -63,7 +63,9 @@ echo $nomGrupo:Nombre:$nomGrupo >> GRUPOS.DAT
 echo $nomGrupo:Orientación:$orientacion >> GRUPOS.DAT
 echo $nomGrupo:Salón:$salon >> GRUPOS.DAT
 echo $nomGrupo:Adscripto:$adscripto >> GRUPOS.DAT
+echo $nomGrupo:Año:$anioGrupo >> GRUPOS.DAT
 echo $nomGrupo:Alumnos:0 >> GRUPOS.DAT
+
 echo >> GRUPOS.DAT
 echo >> GRUPOS.DAT
 
@@ -75,7 +77,9 @@ echo $nomGrupo:Nombre:$nomGrupo >> GRUPOS.DAT
 echo $nomGrupo:Orientación:$orientacion >> GRUPOS.DAT
 echo $nomGrupo:Salón:$salon >> GRUPOS.DAT
 echo $nomGrupo:Adscripto:$adscripto >> GRUPOS.DAT
+echo $nomGrupo:Año:$anioGrupo >> GRUPOS.DAT
 echo $nomGrupo:Alumnos:0 >> GRUPOS.DAT
+
 echo >> GRUPOS.DAT
 echo >> GRUPOS.DAT
 
@@ -87,11 +91,11 @@ fi
 
 
 
-echo Presione enter para ir al menú 87
+echo Presione enter volver
 read fjoweifheow
 
 
-menu
+#menu
 }
 
 
@@ -118,26 +122,32 @@ read pendientes
 if [ $pendientes == 0 ]
 then
 
-echo Ingrese orientacion del alumno: cocina o barman
-read orientacionAlumno
+#echo Ingrese orientacion del alumno: cocina o barman
+#read orientacionAlumno
 
 echo "¿Quiere ingresarlo a un grupo existente [opcion 1] o crear uno [opcion 2]?"
 read opcionGrupo
 
 if [ $opcionGrupo = 1 ]
 then
+echo Ingrese orientacion del alumno: cocina o barman
+read oriAlumno
+
+
+while [ "$oriAlumno" != "cocina" ] && [ "$oriAlumno" != "barman" ]
+do
+echo Orientación no disponible
+echo Ingrese orientación valida
+read oriAlumno
+done
+
 agregarGrupoExistente
+
+grupoAlumno=$agregarGrupo
 else
 crearGrupo
-
-echo $orientacionAlumno
-
-while [ "$orientacionAlumno" != "cocina" ] && [ "$orientacionAlumno" != "barman" ]
-do
-echo orientacio no disponible
-echo Ingrese orientacion valida
-read orientacionAlumno
-done
+oriAlumno=$orientacion
+grupoAlumno=$nomGrupo
 
 fi
 
@@ -153,29 +163,30 @@ numero=1
 #echo $numero
 fi
 
-
+echo $grupoAlumno
 
 
 echo $numero:CI: $ci >> ALUMNOS.DAT
 echo $numero:Nombre Completo: $nomcom >> ALUMNOS.DAT
 echo $numero:Fecha de Nacimiento: $fecha >> ALUMNOS.DAT
 echo $numero:Teléfono: $telefono >> ALUMNOS.DAT
+echo $numero:Grupo: $grupoAlumno >> ALUMNOS.DAT
 echo $numero:Año a Cursar: $anoacursar >> ALUMNOS.DAT
 echo $numero:Asignaturas Pendientes: $pendientes >> ALUMNOS.DAT
-echo $numero:Orientación: $orientacionAlumno >> ALUMNOS.DAT
+echo $numero:Orientación: $oriAlumno >> ALUMNOS.DAT
 echo >> ALUMNOS.DAT
 
-echo Presione enter para ir al menú 165
-read fjoweifheow
+#echo Presione enter para ir al menú
+#read fjoweifheow
 
 
-menu
+#menu
 
 else
 
 echo El alumno no puede inscribirse porque tiene asignaturas pendientes
 
-echo Presione enter para ir al menú 175
+echo Presione enter para ir al menú
 read fjoweifheow
 
 
@@ -188,6 +199,7 @@ leerAlumnos () {
 
 	clear
 echo Buscando Alumnos...
+echo
 
 
 
@@ -216,6 +228,7 @@ echo Resultados de tu búsqueda:
 echo
 numAlumnoCI=$(grep $AlumnoBuscarCi ALUMNOS.DAT | cut -d: -f 1)
 grep -w $numAlumnoCI ALUMNOS.DAT | cut -d: -f 2,3
+echo
 
 else
 echo La cédula ingresada no existe
@@ -269,25 +282,29 @@ done
 }
 
 agregarGrupoExistente () {
+echo
+echo
+echo
 
-#HAY QUE SACAR ESE CLEAR YA MISMO, SÓLO DEBUG
-	clear
-#EL CLEAR DIGO
-	echo Ingrese el nombre del grupo al que quiere agregar al alumno:
+echo Grupos de $anoacursar año
+echo
+#grep -w Año GRUPOS.DAT | cut -d: -f 1,3 | grep $anoacursar
+if grep -w Año GRUPOS.DAT | grep $anoacursar
+then
+echo
+
+echo Ingrese el nombre del grupo al que quiere agregar al alumno:
 	read agregarGrupo
-
 	echo
 	echo
-
-
 
 if [ -f GRUPOS.DAT ]
 then
 
-if grep -w $agregarGrupo GRUPOS.DAT | cut -d: -f 2,3
+if grep -wq $agregarGrupo GRUPOS.DAT
 then
 
-#grep -w $agregarGrupo GRUPOS.DAT | tail -n 1 | cut -d: -f 2,3
+grep -w $agregarGrupo GRUPOS.DAT | cut -d: -f 2,3
 
 cuposAgregarGrupo=$(grep -w $agregarGrupo GRUPOS.DAT | tail -n 1 | cut -d: -f 3)
 
@@ -296,37 +313,20 @@ echo El curso tiene $cuposAgregarGrupo alumnos
 
 if [ $cuposAgregarGrupo -lt 15 ]
 then
-echo '¿Confirma que quiere agregar al alumno a este grupo? (s o n)'
+echo '¿Confirma que quiere agregar al alumno al grupo '$agregarGrupo'? (s o n)'
 read opcionUsuario
 
 if [ $opcionUsuario == s ]
 then
-echo Eligió si
 lineacupos=$(grep -n $agregarGrupo GRUPOS.DAT | tail -n 1 | cut -d: -f 1)
-
-echo La línea es $lineacupos
-
-#head -n $lineacupos GRUPOS.DAT | tail -n 1
 
 cuposACambiar=$(grep $agregarGrupo GRUPOS.DAT | tail -n 1 | cut -d: -f 1,2):
 
-echo Cupos a cambiar: $cuposACambiar
-
 cuposfinales=$(($cuposAgregarGrupo+1))
-echo $cuposAgregarGrupo
-echo $cuposfinales
-
-#sed -i '/$(grep $agregarGrupo PRUEBA.DAT | tail -n 1)/c\$cuposACambiar$cuposfinales' PRUEBA.DAT
-#sed -i '/2bc:Cupos:2/c\2bc:Cupos:32' PRUEBA.DAT
 
 
+sed -i "/$(grep $agregarGrupo GRUPOS.DAT | tail -n 1)/c $cuposACambiar$cuposfinales" GRUPOS.DAT
 
-
-#sed -i '/$(head -n  | tail -n 1)/c\$cuposACambiar$cuposfinales' PRUEBA.DAT
-
-head -n $line file | tail -1
-
-echo Se cambiaría $(grep $agregarGrupo PRUEBA.DAT | tail -n 1)
 
 echo Presione enter para ir al menú 315
 read fhodfhoeiwhfiowehfiowehfioehf
@@ -342,7 +342,7 @@ echo ¿Quiere probar con otro grupo [1] o volver al menú[2]?
 
 read opcionUsuario
 
-if [ $opcionUsuario == s ]
+if [ $opcionUsuario == 1 ]
 then
 agregarGrupoExistente
 else
@@ -352,7 +352,18 @@ fi
 
 
 else
+
 echo El grupo ingresado no existe
+
+echo ¿Quiere volver a intentarlo [1] o ir al menu[2]?
+read opcionUsuario
+
+if [ $opcionUsuario == 1 ]
+then
+agregarGrupoExistente
+else
+menu
+fi
 
 fi
 
@@ -364,9 +375,12 @@ read fhodfhoeiwhfiowehfiowehfioehf
 
 fi
 
-
-
-
+else
+echo Usted no tiene grupos para $anoacursar año.
+echo ¿Quiere crearlo ahora?
+echo Si [1] No [2]
+#read opcionUsuario
+fi
 }
 
 
