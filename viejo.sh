@@ -9,19 +9,7 @@ echo Creando Grupo...
 echo "Ingrese nombre de grupo (En una sola palabra):"
 tput sgr 0
 read nomGrupo
-tput setaf 1
-#tput setab 7
-echo 'Ingrese Orientación del grupo (cocina o barman)'
-tput sgr 0
-read orientacion
 
-
-while [ "$orientacion" != "cocina" ] && [ "$orientacion" != "barman" ]
-do
-echo orientacion no disponible
-echo Ingrese orientacion valida: cocina o barman
-read orientacion
-done
 
 tput setaf 1
 #tput setab 7
@@ -38,10 +26,37 @@ echo Ingrese nombre del adscripto
 tput sgr 0
 read adscripto
 
+
+
+if [ $pepito == 1 ]
+then
+anioGrupo=$anoacursar
+orientacion=$oriAlumno
+alumnos=1
+else
+alumnos=0
+tput setaf 1
 echo Ingrese año del curso
+tput sgr 0
 tput sgr 0
 read anioGrupo
 
+
+tput setaf 1
+echo 'Ingrese Orientación del grupo (cocina o barman)'
+tput sgr 0
+read orientacion
+
+
+while [ "$orientacion" != "cocina" ] && [ "$orientacion" != "barman" ]
+do
+echo orientacion no disponible
+echo Ingrese orientacion valida: cocina o barman
+read orientacion
+done
+
+
+fi
 
 if [ -f GRUPOS.DAT ]
 then
@@ -64,7 +79,7 @@ echo $nomGrupo:Orientación:$orientacion >> GRUPOS.DAT
 echo $nomGrupo:Salón:$salon >> GRUPOS.DAT
 echo $nomGrupo:Adscripto:$adscripto >> GRUPOS.DAT
 echo $nomGrupo:Año:$anioGrupo >> GRUPOS.DAT
-echo $nomGrupo:Alumnos:0 >> GRUPOS.DAT
+echo $nomGrupo:Alumnos:$alumnos >> GRUPOS.DAT
 
 echo >> GRUPOS.DAT
 echo >> GRUPOS.DAT
@@ -78,7 +93,7 @@ echo $nomGrupo:Orientación:$orientacion >> GRUPOS.DAT
 echo $nomGrupo:Salón:$salon >> GRUPOS.DAT
 echo $nomGrupo:Adscripto:$adscripto >> GRUPOS.DAT
 echo $nomGrupo:Año:$anioGrupo >> GRUPOS.DAT
-echo $nomGrupo:Alumnos:0 >> GRUPOS.DAT
+echo $nomGrupo:Alumnos:$alumnos >> GRUPOS.DAT
 
 echo >> GRUPOS.DAT
 echo >> GRUPOS.DAT
@@ -143,13 +158,15 @@ done
 
 agregarGrupoExistente
 
-grupoAlumno=$agregarGrupo
+
 else
 crearGrupo
 oriAlumno=$orientacion
-grupoAlumno=$nomGrupo
+
 
 fi
+
+grupoAlumno=$nomGrupo
 
 if [ -f ALUMNOS.DAT ]
 then
@@ -261,6 +278,8 @@ echo $(tput setaf 1)$(tput setab 7) Menú$(tput sgr 0)
         echo 2- Ingresar Grupo
         echo 3- Leer Alumnos
         echo 4- Buscar Alumno por cédula
+        echo 5- Borrar Alumno
+        echo 6- Borrar Grupo
         echo 0- Salir
 #       agregarAlumno()
 
@@ -274,7 +293,8 @@ case $pepito in
 2) crearGrupo ;;
 3) leerAlumnos ;;
 4) alumnoCedula ;;
-5) agregarGrupoExistente ;;
+5) borrarAlumno ;;
+6) borrarGrupo;;
 0) ;;
 esac
 
@@ -294,38 +314,38 @@ then
 echo
 
 echo Ingrese el nombre del grupo al que quiere agregar al alumno:
-	read agregarGrupo
+	read nomGrupo
 	echo
 	echo
 
 if [ -f GRUPOS.DAT ]
 then
 
-if grep -wq $agregarGrupo GRUPOS.DAT
+if grep -wq $nomGrupo GRUPOS.DAT
 then
 
-grep -w $agregarGrupo GRUPOS.DAT | cut -d: -f 2,3
+grep -w $nomGrupo GRUPOS.DAT | cut -d: -f 2,3
 
-cuposAgregarGrupo=$(grep -w $agregarGrupo GRUPOS.DAT | tail -n 1 | cut -d: -f 3)
+cuposAgregarGrupo=$(grep -w $nomGrupo GRUPOS.DAT | tail -n 1 | cut -d: -f 3)
 
 echo
 echo El curso tiene $cuposAgregarGrupo alumnos
 
 if [ $cuposAgregarGrupo -lt 15 ]
 then
-echo '¿Confirma que quiere agregar al alumno al grupo '$agregarGrupo'? (s o n)'
+echo '¿Confirma que quiere agregar al alumno al grupo '$nomGrupo'? (s o n)'
 read opcionUsuario
 
 if [ $opcionUsuario == s ]
 then
-lineacupos=$(grep -n $agregarGrupo GRUPOS.DAT | tail -n 1 | cut -d: -f 1)
+lineacupos=$(grep -n $nomGrupo GRUPOS.DAT | tail -n 1 | cut -d: -f 1)
 
-cuposACambiar=$(grep $agregarGrupo GRUPOS.DAT | tail -n 1 | cut -d: -f 1,2):
+cuposACambiar=$(grep $nomGrupo GRUPOS.DAT | tail -n 1 | cut -d: -f 1,2):
 
 cuposfinales=$(($cuposAgregarGrupo+1))
 
 
-sed -i "/$(grep $agregarGrupo GRUPOS.DAT | tail -n 1)/c $cuposACambiar$cuposfinales" GRUPOS.DAT
+sed -i "/$(grep $nomGrupo GRUPOS.DAT | tail -n 1)/c $cuposACambiar$cuposfinales" GRUPOS.DAT
 
 
 echo Presione enter para ir al menú 315
@@ -377,10 +397,20 @@ fi
 
 else
 echo Usted no tiene grupos para $anoacursar año.
-echo ¿Quiere crearlo ahora?
-echo Si [1] No [2]
-#read opcionUsuario
+echo Crear Grupo [1] Volver al Menú [2]
+read opcionUsuario
+
+if [ $opcionUsuario == 1 ]
+then
+crearGrupo
+#else
+#menu
 fi
+fi
+}
+
+borrarAlumno () {
+        
 }
 
 
