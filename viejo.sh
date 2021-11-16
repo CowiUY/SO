@@ -70,7 +70,10 @@ echo
 
 #grupoExiste=$(grep $nomGrupo GRUPOS.DAT | cut -d: -f 1)
 grep -w $nomGrupo GRUPOS.DAT | cut -d: -f 2,3
-
+if [ $pepito == 1 ]
+then
+orientacion=$(grep -w $nomGrupo:Orientación GRUPOS.DAT | cut -d: -f 3)
+fi
 
 else
 
@@ -137,8 +140,9 @@ read pendientes
 if [ $pendientes == 0 ]
 then
 
-#echo Ingrese orientacion del alumno: cocina o barman
-#read orientacionAlumno
+
+#if [ grep -wq Año:$anoacursar GRUPOS.DAT ]
+
 
 echo "¿Quiere ingresarlo a un grupo existente [opcion 1] o crear uno [opcion 2]?"
 read opcionGrupo
@@ -215,6 +219,7 @@ fi
 leerAlumnos () {
 
 	clear
+        
 echo Buscando Alumnos...
 echo
 
@@ -224,11 +229,11 @@ echo
 
 cat ALUMNOS.DAT | cut -d: -f2,3
 
-echo Presione enter para ir al menú 195
+echo Presione enter para ir al menú
 read fjoweifheow
 
 
-menu
+#menu
 }
 
 alumnoCedula () {
@@ -253,7 +258,7 @@ fi
 
 
 
-echo Presione enter para ir al menú 223
+echo Presione enter para ir al menú
 read fjoweifheow
 
 menu
@@ -277,9 +282,11 @@ echo $(tput setaf 1)$(tput setab 7) Menú$(tput sgr 0)
         echo 1- Ingresar Alumno
         echo 2- Ingresar Grupo
         echo 3- Leer Alumnos
-        echo 4- Buscar Alumno por cédula
+        echo 4- Leer Grupos
         echo 5- Borrar Alumno
         echo 6- Borrar Grupo
+        echo 7- Cambiar Teléfono de un Alumno
+        echo 8- Buscar Alumno por cédula
         echo 0- Salir
 #       agregarAlumno()
 
@@ -292,9 +299,11 @@ case $pepito in
 1) agregarAlumno ;;
 2) crearGrupo ;;
 3) leerAlumnos ;;
-4) alumnoCedula ;;
+4) listadoGrupos ;;
 5) borrarAlumno ;;
-6) borrarGrupo;;
+6) borrarGrupo ;;
+7) cambiarTelefono ;;
+8) alumnoCedula ;;
 0) ;;
 esac
 
@@ -348,7 +357,7 @@ cuposfinales=$(($cuposAgregarGrupo+1))
 sed -i "/$(grep $nomGrupo GRUPOS.DAT | tail -n 1)/c $cuposACambiar$cuposfinales" GRUPOS.DAT
 
 
-echo Presione enter para ir al menú 315
+echo Presione enter para ir al menú
 read fhodfhoeiwhfiowehfiowehfioehf
 else
 agregarGrupoExistente
@@ -409,7 +418,163 @@ fi
 fi
 }
 
+cambiarTelefono () {
+        echo Ingrese la cédula del alumno
+        read ci
+        #grep -w $ci: ALUMNOS.DAT
+        #grep -v $ci: ALUMNOS.DAT
+        
+        
+        numeroAlumno=$(grep $ci ALUMNOS.DAT | cut -d: -f1)
+# ESTO VA DESPUES, DEBUG                        clear
+
+
+#telefonoViejoLinea=$(grep $numeroAlumno:Teléfono: GRUPOS.DAT)
+
+echo Ingrese nuevo número telefónico:
+read telefonoNuevo
+
+        sed -i "/$(grep $numeroAlumno:Teléfono: ALUMNOS.DAT)/c $numeroAlumno:Teléfono: $telefonoNuevo" ALUMNOS.DAT
+        #sed -i "s/$numeroAlumno:Teléfono/$numeroAlumno:Teléfono:$telefonoNuevo" ALUMNOS.DAT
+
+echo
+echo Así quedan los datos del alumno:
+echo
+
+        grep $numeroAlumno: ALUMNOS.DAT | cut -d: -f2,3
+echo
+echo Presione enter para volver al menú
+read fhodfhoeiwhfiowehfiowehfioehf
+}
+
+listadoGrupos () {
+clear
+cat GRUPOS.DAT | cut -d: -f2,3
+
+echo Presione enter para ir al menú
+read fjoweifheow
+
+}
+
 borrarAlumno () {
+        clear
+        echo Introduzca la cédula del alumno a borrar
+        read cedulaBorrar
+
+if grep -w $cedulaBorrar ALUMNOS.DAT
+then
+echo El alumno existe...
+
+numeroAlumnoBorrar=$(grep -w $cedulaBorrar ALUMNOS.DAT | cut -d: -f1)
+        echo $numeroAlumnoBorrar
+#echo TERMINA NUMERO 
+        grupoAlumno=$(grep $numeroAlumnoBorrar:Grupo ALUMNOS.DAT | cut -d: -f3)
+        echo $grupoAlumno
+   #     echo TERMINA GRUPOALUMNO
+
+        cuposAgregarGrupo=$(grep $grupoAlumno GRUPOS.DAT | tail -n 1 | cut -d: -f3)
+    cuposFinales=$(($cuposAgregarGrupo-1))
+
+    echo Quedaban $cuposAgregarGrupo y ahora quedan $cuposFinales, el grupo del alumno es $grupoAlumno
+    echo Y el número del alumno es $numeroAlumnoBorrar
+
+    #grep -w $numeroAlumnoBorrar ALUMNOS.DAT
+    echo
+    echo
+    #grep -w $grupoAlumno GRUPOS.DAT
+
+        if sed -i "/$numeroAlumnoBorrar:/d" ALUMNOS.DAT
+        then
+        #clear
+        echo
+echo
+cat ALUMNOS.DAT
+        echo Borrado con éxito
+        
+        sed -i "/$(grep $grupoAlumno GRUPOS.DAT | tail -n 1)/c $grupoAlumno:Alumnos:$cuposFinales" GRUPOS.DAT
+echo
+echo
+cat ALUMNOS.DAT
+
+        echo Presione enter para ir al menú
+        read fjoweifheow
+        else
+        #clear
+        echo Hubo un problema
+        echo ¿Está seguro que ese alumno existe?
+        echo
+        echo Presione enter para ir al menú
+        read fjoweifheow
+        fi
+
+
+
+
+else
+echo Ingresó una cédula no válida
+echo
+echo Presione enter para volver al menú
+read fhodfhoeiwhfiowehfiowehfioehf
+
+fi
+
+
+        
+}
+
+borrarGrupo () {
+    clear
+        echo ¿Quiere ver los grupos [1] o borrar directamente [nombre de grupo]?
+        read opcionUsuario
+
+        if [ $opcionUsuario == 1 ]
+then
+
+cat GRUPOS.DAT | cut -d: -f2,3
+
+echo Presione enter para continuar
+read fhodfhoeiwhfiowehfiowehfioehf
+borrarGrupo
+else
+
+        if grep -w $opcionUsuario GRUPOS.DAT
+        then
+
+        alumnosGrupoBorrar=$(grep -w $opcionUsuario GRUPOS.DAT | tail -n 1 | cut -d: -f 3)
+        echo $alumnosGrupoBorrar
+
+        
+
+
+        if [ $alumnosGrupoBorrar -ne 0 ]
+        then
+        #clear
+        echo El grupo sigue teniendo alumnos, no se puede borrar
+        echo
+        echo Presione enter para ir al menú
+        read fjoweifheow
+        else
+        #clear
+        echo El curso no tiene alumnos, borrando...
+
+        sed -i "/$opcionUsuario/d" GRUPOS.DAT
+        echo
+        echo Presione enter para ir al menú
+        read fjoweifheow
+        fi
+
+        else
+        echo El grupo ingresado no existe
+        echo
+        echo Presione enter para volver al menú
+        read fhodfhoeiwhfiowehfiowehfioehf
+fi
+
+
+fi
+
+
+        
         
 }
 
